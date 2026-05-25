@@ -10,6 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/valkey-io/valkey-go"
+	"github.com/valkey-io/valkey-go/valkeylimiter"
 )
 
 const (
@@ -29,6 +30,19 @@ const (
 	period            = 30
 	recoveryCodeCount = 10
 	recoveryCodeBytes = 5
+
+	loginLimiterPrefix               = "limiter:login"
+	loginTwoFactorLimiterPrefix      = "limiter:login:two:factor"
+	loginTwoFactorEmailLimiterPrefix = "limiter:login:two:email:factor"
+	fpLimiterPrefix                  = "limiter:forget:password"
+	fpvLimiterPrefix                 = "limiter:forget:password:verification"
+	rpLimiterPrefix                  = "limiter:reset:password"
+
+	limiterLimit              = 5
+	twoFactorLimitEmailWindow = 20 * time.Minute
+	limiterWindow             = 5 * time.Minute
+
+	forgetPasswordLimiterWindow = 10 * time.Minute
 )
 
 type Env struct {
@@ -52,6 +66,7 @@ type Config struct {
 	ServiceName string
 	Jwt         *JWT
 	TwoFactor   *TwoFactor
+	RateLimiter *Limiter
 }
 
 type JWT struct {
@@ -86,6 +101,15 @@ type GenerateTwoFactor struct {
 type RecoveryCodes struct {
 	Plain []string
 	Hash  [][]byte
+}
+
+type Limiter struct {
+	Login                      valkeylimiter.RateLimiterClient
+	LoginTwoFactor             valkeylimiter.RateLimiterClient
+	LoginTwoFactorUserID       valkeylimiter.RateLimiterClient
+	ForgetPassword             valkeylimiter.RateLimiterClient
+	ForgetPasswordVerification valkeylimiter.RateLimiterClient
+	ResetPassword              valkeylimiter.RateLimiterClient
 }
 
 func validateKey(key string) ([]byte, ed25519.PrivateKey, ed25519.PublicKey, error) {
