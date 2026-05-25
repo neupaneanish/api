@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"slices"
 	"time"
 
 	"go.opentelemetry.io/contrib/bridges/otelslog"
@@ -36,8 +37,8 @@ func NewTelemetry(
 	var shutdowns []func(context.Context) error
 	shutdown := func(ctx context.Context) error {
 		var sErr error
-		for i := len(shutdowns) - 1; i >= 0; i-- {
-			sErr = errors.Join(sErr, shutdowns[i](ctx))
+		for _, fn := range slices.Backward(shutdowns) {
+			sErr = errors.Join(sErr, fn(ctx))
 		}
 		return sErr
 	}
