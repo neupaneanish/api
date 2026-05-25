@@ -135,6 +135,10 @@ github.com/tklauser/numcpus v0.11.0 h1:nSTwhKH5e1dMNsCdVBukSZrURJRoHbSEQjdEbY+9R
 github.com/tklauser/numcpus v0.11.0/go.mod h1:z+LwcLq54uWZTX0u/bGobaV34u6V7KNlTZejzM6/3MQ=
 github.com/valkey-io/valkey-go v1.0.75 h1:cfq9DODW2ntuUgyHJmFWb4/p+xpLpQB1t5SQyWM9uJ4=
 github.com/valkey-io/valkey-go v1.0.75/go.mod h1:6X581PhgfeMkJmyfjIsa2eFdq6dy3Qkkg9zwjM1p42M=
+github.com/valkey-io/valkey-go/mock v1.0.75 h1:gOCIjJwYtCc0ZDmmx1vA/eXyZtfCb3fa/a7Md/R9eVk=
+github.com/valkey-io/valkey-go/mock v1.0.75/go.mod h1:vgDGH2U2vpcAwrwtqTrknSOT64/xHzOI5El9ucc0Frc=
+github.com/valkey-io/valkey-go/valkeylimiter v1.0.75 h1:b07z7K7eu5SIjmYPcEDVkFA0CPMubl/0WUotAOJwNxc=
+github.com/valkey-io/valkey-go/valkeylimiter v1.0.75/go.mod h1:WVDHoLQCWnWkFhQoc+sZssL6ZvS/GueNdkNE+B/4GKQ=
 github.com/valkey-io/valkey-go/valkeyotel v1.0.75 h1:Sxcq60U5jqcFMORSvKSskG6qpwub0g26ugZmik/fTzo=
 github.com/valkey-io/valkey-go/valkeyotel v1.0.75/go.mod h1:zoJ0uuXCnxqCV4o4PNCDn+ptc7JeYSp7rsgaSaGJvBo=
 github.com/yusufpapurcu/wmi v1.2.4 h1:zFUKzehAFReQwLys1b/iSMl+JQGSCSjtVqQn9bBrPo0=
@@ -173,6 +177,8 @@ go.opentelemetry.io/proto/otlp v1.10.0 h1:IQRWgT5srOCYfiWnpqUYz9CVmbO8bFmKcwYxpu
 go.opentelemetry.io/proto/otlp v1.10.0/go.mod h1:/CV4QoCR/S9yaPj8utp3lvQPoqMtxXdzn7ozvvozVqk=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
 go.uber.org/goleak v1.3.0/go.mod h1:CoHD4mav9JJNrW/WLlf7HGZPjdw8EucARQHekz1X6bE=
+go.uber.org/mock v0.6.0 h1:hyF9dfmbgIX5EfOdasqLsWD6xqpNZlXblLB/Dbnwv3Y=
+go.uber.org/mock v0.6.0/go.mod h1:KiVJ4BqZJaMj4svdfmHM0AUx4NJYO8ZNpPnZn1Z+BBU=
 go.yaml.in/yaml/v3 v3.0.4 h1:tfq32ie2Jv2UxXFdLJdh3jXuOzWiL1fo0bu/FbuKpbc=
 go.yaml.in/yaml/v3 v3.0.4/go.mod h1:DhzuOOF2ATzADvBadXxruRBLzYTpT36CKvDb3+aBEFg=
 golang.org/x/crypto v0.50.0 h1:zO47/JPrL6vsNkINmLoo/PH1gcxpls50DNogFvB5ZGI=

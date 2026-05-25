@@ -12,6 +12,7 @@ require (
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.42.0
 	github.com/testcontainers/testcontainers-go/modules/valkey v0.42.0
 	github.com/valkey-io/valkey-go v1.0.75
+	github.com/valkey-io/valkey-go/valkeylimiter v1.0.75
 	github.com/valkey-io/valkey-go/valkeyotel v1.0.75
 	go.opentelemetry.io/contrib/bridges/otelslog v0.18.0
 	go.opentelemetry.io/otel v1.43.0

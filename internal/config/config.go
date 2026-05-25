@@ -30,6 +30,11 @@ func NewConfig(
 		return nil, twoFactorErr
 	}
 
+	rateLimiter, rateLimiterErr := NewLimiter(client)
+	if rateLimiterErr != nil {
+		return nil, rateLimiterErr
+	}
+
 	return &Config{
 		Pool:        pool,
 		Client:      client,
@@ -39,6 +44,7 @@ func NewConfig(
 		ServiceName: env.ServiceName,
 		Jwt:         jwt,
 		TwoFactor:   twoFactor,
+		RateLimiter: rateLimiter,
 	}, nil
 }
 
