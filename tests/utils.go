@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	contextTimeout = 5 * time.Second
+	contextTimeout = 60 * time.Second
 )
 
 func checkAndReturn(
