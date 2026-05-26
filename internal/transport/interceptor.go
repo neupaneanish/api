@@ -8,8 +8,7 @@ import (
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"neupaneanish.com.np/api/internal/errs"
 )
 
 func loggerInterceptor(logger *slog.Logger) logging.Logger {
@@ -31,10 +30,10 @@ func unaryTimeoutInterceptor(defaultTimeout time.Duration) grpc.UnaryServerInter
 
 		if err != nil && newCtx.Err() != nil {
 			if errors.Is(newCtx.Err(), context.DeadlineExceeded) {
-				return nil, status.Error(codes.DeadlineExceeded, "request timeout exceeded")
+				return nil, errs.ErrRequestTimeout
 			}
 			if errors.Is(newCtx.Err(), context.Canceled) {
-				return nil, status.Error(codes.Canceled, "request canceled by client")
+				return nil, errs.ErrCanceled
 			}
 		}
 		return resp, err
@@ -60,10 +59,10 @@ func streamTimeoutInterceptor(maxDuration time.Duration) grpc.StreamServerInterc
 
 		if ctx.Err() != nil {
 			if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-				return status.Error(codes.DeadlineExceeded, "stream timeout exceeded")
+				return errs.ErrRequestTimeout
 			}
 			if errors.Is(ctx.Err(), context.Canceled) {
-				return status.Error(codes.Canceled, "stream canceled by client")
+				return errs.ErrCanceled
 			}
 		}
 		return err

@@ -8,11 +8,10 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc/filters"
+	"neupaneanish.com.np/api/internal/errs"
 
 	protovalidatemiddleware "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/protovalidate"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"neupaneanish.com.np/api/internal/config"
 )
 
@@ -33,7 +32,7 @@ func NewOptions(cfg *config.Config) ([]grpc.ServerOption, error) {
 
 	recoveryOpt := recovery.WithRecoveryHandler(func(p any) error {
 		cfg.Logger.Error("panic recovered in gRPC handler", "panic", p)
-		return status.Error(codes.Internal, "Internal server error")
+		return errs.ErrInternalServer
 	})
 
 	opts := []grpc.ServerOption{
