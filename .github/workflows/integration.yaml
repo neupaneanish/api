@@ -1,13 +1,25 @@
-name: test.yaml
+name: integration.yaml
 
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - '.github/workflows/**'
+      - 'cmd/**'
+      - 'internal/**'
+      - 'go.mod'
+      - 'go.sum'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - '.github/workflows/**'
+      - 'cmd/**'
+      - 'internal/**'
+      - 'go.mod'
+      - 'go.sum'
 
 jobs:
-  test:
+  integration:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -16,10 +28,11 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.26'
+          go-version: stable
+          cache: true
 
       - name: Install dependencies
         run: go mod download
 
-      - name: Install dependencies
+      - name: Run Integration tests
         run: go test -v -tags=integration ./...
