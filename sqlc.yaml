@@ -1,0 +1,66 @@
+version: "2"
+sql:
+  - engine: postgresql
+    queries: "database/queries"
+    schema: "database/migrations"
+    gen:
+      go:
+        package: "repository"
+        out: "internal/repository"
+        sql_package: "pgx/v5"
+        sql_driver: "github.com/jackc/pgx/v5"
+
+        emit_interface: true
+        emit_empty_slices: true
+        emit_result_struct_pointers: true
+        emit_params_struct_pointers: true
+        emit_pointers_for_null_types: true
+
+        omit_unused_structs: true
+        query_parameter_limit: 0
+
+        overrides:
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"
+
+          - db_type: "timestamp"
+            go_type:
+              type: "time.Time"
+
+          - db_type: "timestamp"
+            nullable: true
+            go_type:
+              type: "time.Time"
+              pointer: true
+
+          - db_type: "timestamptz"
+            go_type:
+              type: "time.Time"
+
+          - db_type: "timestamptz"
+            nullable: true
+            go_type:
+              type: "time.Time"
+              pointer: true
+
+          - db_type: "date"
+            go_type:
+              type: "time.Time"
+
+          - db_type: "date"
+            nullable: true
+            go_type:
+              type: "time.Time"
+              pointer: true
+
+          - column: "users.status"
+            go_type:
+              import: "neupaneanish.com.np/api/internal/enum"
+              type: "UserStatus"
+
+          - column: "users.role"
+            go_type:
+              import: "neupaneanish.com.np/api/internal/enum"
+              type: "UserRole"

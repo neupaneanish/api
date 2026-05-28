@@ -22,8 +22,13 @@ jobs:
   integration:
     runs-on: ubuntu-latest
     steps:
+      - name: Configure Git to use HTTPS
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"
+
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          submodules: true
 
       - name: Setup Go
         uses: actions/setup-go@v6
