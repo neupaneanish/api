@@ -14,11 +14,13 @@ import (
 )
 
 func TestNewTelemetry(t *testing.T) {
+	t.Parallel()
 	url, cleanup, err := tests.OpenTelemetry()
 	require.NoError(t, err)
 	t.Cleanup(cleanup)
 
 	t.Run("Success", func(t *testing.T) {
+		t.Parallel()
 		logger, shutdown, tErr := telemetry.NewTelemetry(context.Background(), url, "Test Service", "development")
 		require.NoError(t, tErr)
 		assert.NotNil(t, logger)
@@ -33,6 +35,7 @@ func TestNewTelemetry(t *testing.T) {
 	})
 
 	t.Run("Invalid URL", func(t *testing.T) {
+		t.Parallel()
 		logger, shutdown, tErr := telemetry.NewTelemetry(
 			context.Background(),
 			" %%% :invalid:url",

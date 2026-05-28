@@ -11,13 +11,16 @@ import (
 )
 
 func TestNewDatabase(t *testing.T) {
+	t.Parallel()
 	t.Run("Success", func(t *testing.T) {
+		t.Parallel()
 		pool, poolErr := config.NewDatabase(t.Context(), databaseURL)
 		require.NoError(t, poolErr)
 		assert.NotNil(t, pool)
 	})
 
 	t.Run("Invalid url", func(t *testing.T) {
+		t.Parallel()
 		pool, poolErr := config.NewDatabase(t.Context(), "invalid-url")
 		require.Error(t, poolErr)
 		assert.Nil(t, pool)
