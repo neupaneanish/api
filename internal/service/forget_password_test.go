@@ -26,10 +26,10 @@ func TestForgetPassword(t *testing.T) {
 
 	t.Run("Register email", func(t *testing.T) {
 		t.Parallel()
-		seedErr := seedUser(t.Context(), "test@test.com", "Test@123456")
+		seedErr := seedUser(t.Context(), "forgetPassword@test.com", "forgetPassword@123456")
 		require.NoError(t, seedErr)
 
-		req := &authv1.ForgetPasswordRequest{Email: "test@test.com"}
+		req := &authv1.ForgetPasswordRequest{Email: "forgetPassword@test.com"}
 
 		response, err := authServiceClient.ForgetPassword(t.Context(), req)
 		require.NoError(t, err)
