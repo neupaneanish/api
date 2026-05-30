@@ -33,3 +33,10 @@ type ForgetPasswordSession struct {
 	UserID string    `json:"user_id"`
 	Code   string    `json:"code"`
 }
+
+type ResetPasswordSession struct {
+	Key    string    `json:"key"     valkey:",key"`
+	Ver    int64     `json:"ver"     valkey:",ver"`
+	ExAt   time.Time `json:"exat"    valkey:",exat"`
+	UserID string    `json:"user_id"`
+}

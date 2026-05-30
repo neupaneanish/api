@@ -5,4 +5,5 @@ const (
 	LoginAccessSessionPrefix    = "login:access:session"
 	LoginRefreshSessionPrefix   = "login:refresh:session"
 	ForgetPasswordSessionPrefix = "forget:password:session"
+	ResetPasswordSessionPrefix  = "reset:password:session"
 )
