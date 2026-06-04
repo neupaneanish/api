@@ -95,7 +95,7 @@ func (s *AuthService) validTotpCode(
 	params := &repository.TwoFactorSecretParams{UserID: validate.userID}
 	row, rowErr := s.cfg.Repository.TwoFactorSecret(ctx, params)
 	if rowErr != nil {
-		if errors.Is(pgx.ErrNoRows, rowErr) {
+		if errors.Is(rowErr, pgx.ErrNoRows) {
 			s.cfg.Logger.WarnContext(ctx, validate.serviceName+" data not found", "userID", validate.userID.String())
 			return nil, errs.ErrNotFound
 		}
@@ -139,7 +139,7 @@ func (s *AuthService) validateRecoveryCode(
 
 	if len(row) == 0 {
 		s.cfg.Logger.WarnContext(ctx, "Recovery attempt with no codes in DB", "userID", validate.userID)
-		return nil, errs.ErrInvalidCode
+		return nil, errs.ErrNotFound
 	}
 
 	ok, id, updatedAt := s.cfg.TwoFactor.ValidateRecoveryCode(validate.code, row)
