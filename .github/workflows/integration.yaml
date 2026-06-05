@@ -62,5 +62,5 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      - name: Run Integration tests
-        run: go test -v -tags=integration ./...
+      - name: Run Integration and End to End tests
+        run: go test -v -tags=integration,e2e ./...
