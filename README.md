@@ -22,7 +22,7 @@ Distributed portfolio API with Go, gRPC, PostgreSQL, and Valkey.
 - Rate Limiter
 - OpenTelemetry observability
 - Dockerized testing (testcontainers)
-- Benchmarks
+- Benchmarks, E2E
 
 ---
 
@@ -136,14 +136,16 @@ go run cmd/server/main.go
 
 ---
 
-## Coverage ~80.0%
+## Coverage ~82.0%
 
 > Note: Metrics reflect core application logic after filtering out `main.go`, generated protobuf definitions, raw SQL
 > repository code, and test helper suites.
 
+> Coverage is done through real infrastructure PostgreSQl, Valkey, OpenTelemetry i.e. testcontainers. It doesn't have any mocks.   
+
 ```bash
 # Generate coverage
-go test -v -tags=unit,integration,benchmark -coverprofile=total.out ./... 
+go test -v -tags=unit,integration,benchmark,e2e -coverprofile=total.out ./... 
 
 # Filter out external boundaries, generated code, and tooling 
 grep -v -E "main\.go|/internal/protobuf/|/internal/repository/|/tests/|/protobuf/|/database/" total.out > total_clean.out
@@ -161,7 +163,7 @@ go tool cover -func=total_clean.out
 
 This repository uses a modern, completely containerized testing environment:
 
-- **Integration Tests:** Used real database, valkey and telemetry instances for integration
+- **Integration and E2E Tests:** Used real database, valkey and telemetry instances for integration
   tests.
 - **Benchmark Tests:** Used memory server i.e. `bufconn` instead of real server for tests.
 
@@ -177,8 +179,8 @@ Benchmarks were executed on:
 
 ### Benchmarks (Parallel)
 
-Used Bcrypt **(Default Cost)** to secure passwords. To see how well this gRPC server scales under heavy traffic, ran
-a benchmark. Seed user **before** benchmark and used **ResetTimer** for real data.
+Used Bcrypt **(Default Cost)** to secure sensitive fields. To see how well this gRPC server scales under heavy traffic, ran
+a benchmark. Seeded users before the benchmark and utilized **ResetTimer** to capture pure execution data.
 
 | Endpoints        | Size | Latency (ns/op) | Memory (B/op) | Heap (allocs/op) | Cryptographic Passes         |
 |------------------|------|-----------------|---------------|------------------|------------------------------|
