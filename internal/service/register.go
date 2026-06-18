@@ -15,6 +15,7 @@ import (
 	"neupaneanish.com.np/api/internal/utils"
 )
 
+//nolint:funlen
 func (s *AuthService) Register(ctx context.Context, req *authv1.RegisterRequest) (*authv1.RegisterResponse, error) {
 	serviceName := "Register"
 
