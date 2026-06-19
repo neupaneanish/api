@@ -180,7 +180,7 @@ go run cmd/server/main.go
 
 ---
 
-## Coverage ~84.50%
+## Coverage ~84.60%
 
 > Note: Metrics reflect core application logic after filtering out `main.go`, generated protobuf definitions, raw SQL
 > repository code, and test helper suites.

@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/valkey-io/valkey-go/om"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"neupaneanish.com.np/api/internal/errs"
@@ -175,17 +175,6 @@ func (s *AuthService) validateRecoveryCode(
 }
 
 func (s *AuthService) loginTwoFactor(ctx context.Context, tf *loginTF) (*authv1.LoginTwoFactorResponse, error) {
-	hDErr := redis.HDelete[utils.LoginTwoFactorSession](
-		ctx,
-		utils.LoginTwoFactorSessionPrefix,
-		tf.session,
-		s.cfg.Client,
-	)
-	if hDErr != nil {
-		s.cfg.Logger.ErrorContext(ctx, tf.serviceName+" valkey delete", "error", hDErr)
-		return nil, errs.ErrInternalServer
-	}
-
 	tx, txErr := s.cfg.Pool.Begin(ctx)
 	if txErr != nil {
 		s.cfg.Logger.ErrorContext(ctx, tf.serviceName+" transactions", "error", txErr)
@@ -198,11 +187,11 @@ func (s *AuthService) loginTwoFactor(ctx context.Context, tf *loginTF) (*authv1.
 	qtx := repository.New(tx)
 
 	if tf.totp {
-		if handelErr := handleTwoFactorUpdate(ctx, tf, qtx, s.cfg.Logger); handelErr != nil {
+		if handelErr := s.handleTwoFactorUpdate(ctx, tf, qtx); handelErr != nil {
 			return nil, handelErr
 		}
 	} else {
-		if handleErr := handleRecoveryCodeUpdate(ctx, tf, qtx, s.cfg.Logger); handleErr != nil {
+		if handleErr := s.handleRecoveryCodeUpdate(ctx, tf, qtx); handleErr != nil {
 			return nil, handleErr
 		}
 	}
@@ -222,6 +211,8 @@ func (s *AuthService) loginTwoFactor(ctx context.Context, tf *loginTF) (*authv1.
 		return nil, jwtErr
 	}
 
+	s.twoFactorSessionDelete(ctx, tf.session, tf.serviceName)
+
 	return &authv1.LoginTwoFactorResponse{
 		Token: &authv1.Token{
 			Access:   jwt.Access,
@@ -231,7 +222,11 @@ func (s *AuthService) loginTwoFactor(ctx context.Context, tf *loginTF) (*authv1.
 	}, nil
 }
 
-func handleTwoFactorUpdate(ctx context.Context, tf *loginTF, qtx *repository.Queries, logger *slog.Logger) error {
+func (s *AuthService) handleTwoFactorUpdate(
+	ctx context.Context,
+	tf *loginTF,
+	qtx *repository.Queries,
+) error {
 	params := &repository.UpdateTwoFactorParams{
 		UpdatedBy: tf.userID,
 		ID:        tf.id,
@@ -240,19 +235,20 @@ func handleTwoFactorUpdate(ctx context.Context, tf *loginTF, qtx *repository.Que
 	}
 
 	update, updateErr := qtx.UpdateTwoFactor(ctx, params)
-	if updateErr != nil {
-		logger.ErrorContext(ctx, tf.serviceName+"failed to update two factor", "error", updateErr)
-		return errs.ErrInternalServer
-	}
-
-	if update.RowsAffected() == 0 {
-		logger.WarnContext(ctx, tf.serviceName+" cannot update two factor", "userID", tf.userID)
-		return errs.ErrInternalServer
+	if checkErr := s.updateCheckTwoFactor(
+		ctx,
+		tf.userID.String(),
+		tf.serviceName,
+		tf.session,
+		update,
+		updateErr,
+	); checkErr != nil {
+		return checkErr
 	}
 	return nil
 }
 
-func handleRecoveryCodeUpdate(ctx context.Context, tf *loginTF, qtx *repository.Queries, logger *slog.Logger) error {
+func (s *AuthService) handleRecoveryCodeUpdate(ctx context.Context, tf *loginTF, qtx *repository.Queries) error {
 	params := &repository.UpdateRecoveryCodeParams{
 		ID:        tf.id,
 		UserID:    tf.userID,
@@ -260,15 +256,53 @@ func handleRecoveryCodeUpdate(ctx context.Context, tf *loginTF, qtx *repository.
 	}
 
 	update, updateErr := qtx.UpdateRecoveryCode(ctx, params)
+	if checkErr := s.updateCheckTwoFactor(
+		ctx,
+		tf.userID.String(),
+		tf.serviceName,
+		tf.session,
+		update,
+		updateErr,
+	); checkErr != nil {
+		return checkErr
+	}
+
+	return nil
+}
+
+func (s *AuthService) updateCheckTwoFactor(
+	ctx context.Context,
+	userID string,
+	serviceName string,
+	session string,
+	update pgconn.CommandTag,
+	updateErr error,
+) error {
 	if updateErr != nil {
-		logger.ErrorContext(ctx, tf.serviceName+"failed to update recovery code", "error", updateErr)
+		s.cfg.Logger.ErrorContext(ctx, "Failed to update recovery code", "service", serviceName, "error", updateErr)
 		return errs.ErrInternalServer
 	}
 
 	if update.RowsAffected() == 0 {
-		logger.WarnContext(ctx, tf.serviceName+" cannot update recovery code", "userID", tf.userID)
-		return errs.ErrInternalServer
+		s.cfg.Logger.WarnContext(ctx, "Cannot update recovery code", "service", serviceName, "userID", userID)
+		s.twoFactorSessionDelete(ctx, session, serviceName)
+		return errs.ErrSessionExpired
 	}
 
 	return nil
+}
+
+func (s *AuthService) twoFactorSessionDelete(
+	ctx context.Context,
+	session string,
+	serviceName string,
+) {
+	if sessionDeleteErr := redis.HDelete[utils.LoginTwoFactorSession](
+		ctx,
+		utils.LoginTwoFactorSessionPrefix,
+		session,
+		s.cfg.Client,
+	); sessionDeleteErr != nil {
+		s.cfg.Logger.ErrorContext(ctx, "Valkey delete", "service", serviceName, "error", sessionDeleteErr)
+	}
 }
